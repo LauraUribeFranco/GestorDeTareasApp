@@ -1,28 +1,27 @@
+//se importaron las dependencias o librerias necesarias
 import { useState, useEffect } from "react";
 import { db } from "./firebase";
-import {
-  collection,
-  addDoc,
-  getDocs,
-  deleteDoc,
-  doc,
-} from "firebase/firestore";
+import {collection,} from "firebase/firestore";
+import {addDoc,} from "firebase/firestore";
+import {getDocs,} from "firebase/firestore";
+import {deleteDoc,} from "firebase/firestore";
+import {doc,} from "firebase/firestore";
 
 function App() {
   const [titulo, setTitulo] = useState("");
   const [descripcion, setDescripcion] = useState("");
   const [tareas, setTareas] = useState([]);
 
-  // Cargar tareas al inicio
+  // Cargar tareas al inicio y lee la bd de "tareas"
   useEffect(() => {
-    const cargarTareas = async () => {
-      const snapshot = await getDocs(collection(db, "tareas"));
-      setTareas(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    const crearTareas = async () => {
+      const resultado  = await getDocs(collection(db, "tareas"));
+      setTareas(resultado .docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     };
-    cargarTareas();
+    crearTareas();
   }, []);
 
-  // Agregar tarea
+  // funcion qye agega tarea
   const agregarTarea = async () => {
     if (!titulo.trim() || !descripcion.trim()) return;
 
@@ -34,12 +33,12 @@ function App() {
     setTitulo("");
     setDescripcion("");
 
-    // Recargar tareas
-    const snapshot = await getDocs(collection(db, "tareas"));
-    setTareas(snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
+    // lista las tareas
+    const resultado  = await getDocs(collection(db, "tareas"));
+    setTareas(resultado .docs.map((doc) => ({ id: doc.id, ...doc.data() })));
   };
 
-  // Eliminar tarea
+  // funcion que eliminar tarea
   const eliminarTarea = async (id) => {
     await deleteDoc(doc(db, "tareas", id));
     setTareas(tareas.filter((t) => t.id !== id));
@@ -50,7 +49,7 @@ function App() {
       <h1>Gestor de Tareas</h1>
 
       <input
-        placeholder="Título"
+        placeholder="Ingresa la tarea"
         value={titulo}
         onChange={(e) => setTitulo(e.target.value)}
       />
@@ -66,7 +65,7 @@ function App() {
       <h2>Lista de tareas</h2>
 
       {tareas.map((tarea) => (
-        <div key={tarea.id} style={{ marginBottom: "10px" }}>
+        <div key={tarea.id} style={{ marginBottom: "20px" }}>
           <strong>{tarea.titulo}</strong>
           <p>{tarea.descripcion}</p>
           <button onClick={() => eliminarTarea(tarea.id)}>Eliminar</button>
